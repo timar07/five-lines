@@ -16,6 +16,7 @@ enum RawTile {
 
 interface Tile {
   getColor(): string;
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void;
   isAir(): boolean;
   isFlux(): boolean;
   isUnbreakable(): boolean;
@@ -31,6 +32,7 @@ interface Tile {
 }
 
 class Air implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {}
   getColor() { return '#ffffff'; }
   isAir() { return true; }
   isFlux() { return false; }
@@ -47,6 +49,10 @@ class Air implements Tile {
 }
 
 class Flux implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#ccffcc'; }
   isAir() { return false; }
   isFlux() { return true; }
@@ -63,6 +69,10 @@ class Flux implements Tile {
 }
 
 class Unbreakable implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#999999'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -79,7 +89,8 @@ class Unbreakable implements Tile {
 }
 
 class Player implements Tile {
-  getColor() { return '#ffffff'; }
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {}
+  getColor() { return '#ff0000'; }
   isAir() { return false; }
   isFlux() { return false; }
   isUnbreakable() { return false; }
@@ -95,6 +106,10 @@ class Player implements Tile {
 }
 
 class Stone implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#0000cc'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -111,6 +126,10 @@ class Stone implements Tile {
 }
 
 class FallingStone implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#0000cc'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -127,6 +146,10 @@ class FallingStone implements Tile {
 }
 
 class Box implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#8b4513'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -143,6 +166,10 @@ class Box implements Tile {
 }
 
 class FallingBox implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#8b4513'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -159,6 +186,10 @@ class FallingBox implements Tile {
 }
 
 class Key1 implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#ffcc00'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -175,6 +206,10 @@ class Key1 implements Tile {
 }
 
 class Key2 implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#00ccff'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -191,6 +226,10 @@ class Key2 implements Tile {
 }
 
 class Lock1 implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#ffcc00'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -207,6 +246,10 @@ class Lock1 implements Tile {
 }
 
 class Lock2 implements Tile {
+  draw(g: CanvasRenderingContext2D, x: number, y: number): void {
+    g.fillStyle = this.getColor();
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }
   getColor() { return '#00ccff'; }
   isAir() { return false; }
   isFlux() { return false; }
@@ -410,20 +453,13 @@ function createGraphics() {
 function drawMap(g: CanvasRenderingContext2D) {
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
-      updateTile(y, x, g);
+      drawTile(y, x, g);
     }
   }
 }
 
-function updateTile(y: number, x: number, g: CanvasRenderingContext2D) {
-  setTileColor(y, x, g);
-
-  if (!map[y][x].isAir() && !map[y][x].isPlayer())
-    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
-
-function setTileColor(y: number, x: number, g: CanvasRenderingContext2D) {
-  g.fillStyle = map[y][x].getColor();
+function drawTile(y: number, x: number, g: CanvasRenderingContext2D) {
+  map[y][x].draw(g, x, y);
 }
 
 function drawPlayer(g: CanvasRenderingContext2D) {
