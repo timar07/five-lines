@@ -19,31 +19,38 @@ enum RawInput {
 }
 
 interface Input {
-  handle(): void;
+  isUp(): boolean;
+  isDown(): boolean;
+  isLeft(): boolean;
+  isRight(): boolean;
 }
 
 class Up implements Input {
-  handle(): void {
-    moveVertical(-1);
-  }
+  isUp() { return true; }
+  isDown() { return false; }
+  isLeft() { return false; }
+  isRight() { return false; }
 }
 
 class Down implements Input {
-  handle(): void {
-    moveVertical(1);
-  }
+  isUp() { return false; }
+  isDown() { return true; }
+  isLeft() { return false; }
+  isRight() { return false; }
 }
 
 class Left implements Input {
-  handle(): void {
-    moveHorizontal(-1);
-  }
+  isUp() { return false; }
+  isDown() { return false; }
+  isLeft() { return true; }
+  isRight() { return false; }
 }
 
 class Right implements Input {
-  handle(): void {
-    moveHorizontal(1);
-  }
+  isUp() { return false; }
+  isDown() { return false; }
+  isLeft() { return false; }
+  isRight() { return true; }
 }
 
 let playerx = 1;
@@ -133,7 +140,14 @@ function update() {
 function handleInputs() {
   while (inputs.length > 0) {
     let current = inputs.pop();
-    current.handle();
+    if (current.isLeft())
+      moveHorizontal(-1);
+    else if (current.isRight())
+      moveHorizontal(1);
+    else if (current.isUp())
+      moveVertical(-1);
+    else if (current.isDown())
+      moveVertical(1);
   }
 }
 
@@ -159,13 +173,6 @@ function drawMap(g: CanvasRenderingContext2D) {
 }
 
 function updateTile(y: number, x: number, g: CanvasRenderingContext2D) {
-  setTileColor(y, x, g);
-
-  if (map[y][x] !== Tile.AIR && map[y][x] !== Tile.PLAYER)
-    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
-
-function setTileColor(y: number, x: number, g: CanvasRenderingContext2D) {
   if (map[y][x] === Tile.FLUX)
     g.fillStyle = "#ccffcc";
   else if (map[y][x] === Tile.UNBREAKABLE)
@@ -178,6 +185,9 @@ function setTileColor(y: number, x: number, g: CanvasRenderingContext2D) {
     g.fillStyle = "#ffcc00";
   else if (map[y][x] === Tile.KEY2 || map[y][x] === Tile.LOCK2)
     g.fillStyle = "#00ccff";
+
+  if (map[y][x] !== Tile.AIR && map[y][x] !== Tile.PLAYER)
+    g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 }
 
 function drawPlayer(g: CanvasRenderingContext2D) {
