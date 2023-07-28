@@ -249,11 +249,11 @@ class Resting implements FallingState {
 class Key1 implements Tile {
   update(x: number, y: number): void {}
   moveVertical(dy: number): void {
-    removeLock1();
+    remove(new RemoveLock2());
     moveToTile(playerx, playery + dy);
   }
   moveHorizontal(dx: number): void {
-    removeLock1();
+    remove(new RemoveLock1());
     moveToTile(playerx + dx, playery);
   }
   draw(g: CanvasRenderingContext2D, x: number, y: number): void {
@@ -277,11 +277,11 @@ class Key1 implements Tile {
 class Key2 implements Tile {
   update(x: number, y: number): void {}
   moveVertical(dy: number): void {
-    removeLock2();
+    remove(new RemoveLock2());
     moveToTile(playerx, playery + dy);
   }
   moveHorizontal(dx: number): void {
-    removeLock2();
+    remove(new RemoveLock1());
     moveToTile(playerx + dx, playery);
   }
   draw(g: CanvasRenderingContext2D, x: number, y: number): void {
@@ -420,30 +420,26 @@ function transformTile(rawTile: RawTile) {
   }
 }
 
-function remove(tile: Tile) {
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x] === tile) {
-        map[y][x] = new Air();
-      }
-    }
+interface RemoveStrategy {
+  check(x: number, y: number): boolean;
+}
+
+class RemoveLock1 implements RemoveStrategy {
+  check(x: number, y: number) {
+    return map[y][x].isLock1();
   }
 }
 
-function removeLock1() {
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x].isLock1()) {
-        map[y][x] = new Air();
-      }
-    }
+class RemoveLock2 implements RemoveStrategy {
+  check(x: number, y: number) {
+    return map[y][x].isLock2();
   }
 }
 
-function removeLock2() {
+function remove(strategy: RemoveStrategy) {
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x].isLock2()) {
+      if (strategy.check(x, y)) {
         map[y][x] = new Air();
       }
     }
